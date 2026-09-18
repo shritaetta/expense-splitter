@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "u9bas+AaLv+6dkU3LetfAJ954UC3Avx7VYGbdcF4xVs=",
+  "Source": "ExpenseSplitter.Api",
+  "BasePath": "_content/ExpenseSplitter.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

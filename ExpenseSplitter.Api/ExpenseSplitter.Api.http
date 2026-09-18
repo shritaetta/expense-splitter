@@ -1,0 +1,6 @@
+@ExpenseSplitter.Api_HostAddress = http://localhost:5078
+
+GET {{ExpenseSplitter.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

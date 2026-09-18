@@ -1,17 +1,21 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ExpenseSplitter.Api.Data;
 using ExpenseSplitter.Api.DTOs;
 using ExpenseSplitter.Api.Models;
 using ExpenseSplitter.Api.Exceptions;
+using ExpenseSplitter.Api.Filters;
 
 namespace ExpenseSplitter.Api.Controllers
 {
     [ApiController]
     [Route("api/groups/{groupId}/[controller]")]
+    [Authorize]
+    [RequireGroupMember]
     public class ExpensesController : ControllerBase
     {
         private readonly AppDbContext _context;

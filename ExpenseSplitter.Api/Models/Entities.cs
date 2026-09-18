@@ -10,6 +10,7 @@ namespace ExpenseSplitter.Api.Models
         public Guid Id { get; set; }
         public required string Email { get; set; }
         public required string Name { get; set; }
+        public string? PasswordHash { get; set; }
         
         public ICollection<GroupMember> GroupMembers { get; set; } = new List<GroupMember>();
     }
