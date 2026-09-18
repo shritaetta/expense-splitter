@@ -3,7 +3,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormGroup } from '@angular/forms';
 import { GroupService } from '../../../core/services/group';
 import { ExpenseService } from '../../../core/services/expense';
-import { GroupMember, SplitType, CreateExpenseDto } from '../../../core/models/models';
+import { SplitTemplateService } from '../../../core/services/split-template';
+import { GroupMember, SplitType, CreateExpenseDto, SplitTemplate } from '../../../core/models/models';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -18,10 +19,12 @@ export class AddExpense implements OnInit, OnDestroy {
   private router = inject(Router);
   private groupService = inject(GroupService);
   private expenseService = inject(ExpenseService);
+  private templateService = inject(SplitTemplateService);
   private fb = inject(FormBuilder);
 
   groupId!: string;
   members: GroupMember[] = [];
+  templates: SplitTemplate[] = [];
   splitTypes = [
     { value: SplitType.Equal, label: 'Equal' },
     { value: SplitType.Percentage, label: 'Percentage' },
@@ -30,6 +33,7 @@ export class AddExpense implements OnInit, OnDestroy {
 
   expenseForm!: FormGroup;
   private splitTypeSub?: Subscription;
+  private templateSub?: Subscription;
 
   ngOnInit() {
     this.groupId = this.route.snapshot.paramMap.get('id')!;
@@ -39,6 +43,7 @@ export class AddExpense implements OnInit, OnDestroy {
       totalAmount: ['', [Validators.required, Validators.min(0.01)]],
       payerId: ['', Validators.required],
       splitType: [SplitType.Equal, Validators.required],
+      splitTemplateId: [''],
       participants: this.fb.array([])
     });
 
@@ -50,14 +55,22 @@ export class AddExpense implements OnInit, OnDestroy {
       this.buildParticipantsForm();
     });
 
+    this.templateService.getTemplates(this.groupId).subscribe(t => this.templates = t);
+
     this.splitTypeSub = this.expenseForm.get('splitType')?.valueChanges.subscribe(() => {
-      // Trigger change detection for dynamic fields, reset values if needed
       this.recalculate();
+    });
+
+    this.templateSub = this.expenseForm.get('splitTemplateId')?.valueChanges.subscribe(templateId => {
+      if (this.selectedSplitType === SplitType.Template && templateId) {
+        this.applyTemplate(templateId);
+      }
     });
   }
 
   ngOnDestroy() {
     this.splitTypeSub?.unsubscribe();
+    this.templateSub?.unsubscribe();
   }
 
   get participantsArray() {
@@ -82,9 +95,28 @@ export class AddExpense implements OnInit, OnDestroy {
         userName: [member.userName],
         included: [true], // Pre-checked by default
         shareAmount: [''],
-        percentage: ['']
+        percentage: [''],
+        templateShare: ['']
       }));
     });
+  }
+
+  applyTemplate(templateId: string) {
+    const template = this.templates.find(t => t.id === templateId);
+    if (!template) return;
+
+    const arr = this.participantsArray;
+    for (let i = 0; i < arr.length; i++) {
+      const group = arr.at(i) as FormGroup;
+      const userId = group.get('userId')?.value;
+      const item = template.items.find(ti => ti.userId === userId);
+      
+      if (item) {
+        group.patchValue({ included: true, templateShare: item.shareValue });
+      } else {
+        group.patchValue({ included: false, templateShare: '' });
+      }
+    }
   }
 
   recalculate() {
@@ -99,11 +131,21 @@ export class AddExpense implements OnInit, OnDestroy {
     // Filter out unchecked members, map to DTO format
     const activeParticipants = formValue.participants
       .filter((p: any) => p.included)
-      .map((p: any) => ({
-        userId: p.userId,
-        shareAmount: p.shareAmount ? Number(p.shareAmount) : undefined,
-        percentage: p.percentage ? Number(p.percentage) : undefined
-      }));
+      .map((p: any) => {
+        let shareValue: number | undefined;
+        if (Number(formValue.splitType) === SplitType.Exact) {
+          shareValue = p.shareAmount ? Number(p.shareAmount) : undefined;
+        } else if (Number(formValue.splitType) === SplitType.Percentage) {
+          shareValue = p.percentage ? Number(p.percentage) : undefined;
+        } else if (Number(formValue.splitType) === SplitType.Template) {
+          shareValue = p.templateShare ? Number(p.templateShare) : undefined;
+        }
+
+        return {
+          userId: p.userId,
+          shareValue: shareValue
+        };
+      });
 
     const dto: CreateExpenseDto = {
       groupId: this.groupId,

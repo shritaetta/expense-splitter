@@ -35,6 +35,18 @@
         </select>
       </div>
 
+      @if (expenseForm.get('splitType')?.value == SplitType.Template) {
+        <div class="form-group">
+          <label>Select Template</label>
+          <select formControlName="splitTemplateId">
+            <option value="">-- Choose Template --</option>
+            @for (t of templates; track t.id) {
+              <option [value]="t.id">{{ t.name }}</option>
+            }
+          </select>
+        </div>
+      }
+
       <div class="form-group" style="margin-top: 1rem;">
         <label>Participants</label>
         <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
@@ -57,6 +69,9 @@
                   }
                   @if (selectedSplitType === SplitType.Percentage) {
                     <input type="number" formControlName="percentage" placeholder="Percentage %" step="0.1" style="padding: 0.5rem;" />
+                  }
+                  @if (selectedSplitType === SplitType.Template) {
+                    <input type="number" formControlName="templateShare" placeholder="Weight" step="0.1" style="padding: 0.5rem;" readonly />
                   }
                   @if (selectedSplitType === SplitType.Equal) {
                     <span style="font-size: 0.875rem; color: var(--text-muted);">Included (Equal)</span>

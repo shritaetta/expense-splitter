@@ -1,0 +1,113 @@
+<div class="container" style="max-width: 900px; margin-top: 3rem;">
+  <a [routerLink]="['/groups', groupId]" style="color: var(--text-muted); text-decoration: none; font-size: 0.875rem;">← Back to Group</a>
+  
+  <h1 style="color: var(--primary); margin-top: 0.5rem;">Recurring Bills</h1>
+
+  <div class="grid grid-cols-2" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+    
+    <!-- Setup Form -->
+    <div class="card">
+      <h2 style="font-size: 1.25rem;">Setup New Bill</h2>
+      
+      @if (createdId) {
+        <div style="padding: 1rem; background: var(--success); color: white; border-radius: var(--radius-sm); margin-bottom: 1rem;">
+          Bill successfully activated! Preview generated below.
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" [style.opacity]="createdId ? '0.5' : '1'" [style.pointer-events]="createdId ? 'none' : 'auto'">
+        
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" formControlName="description" placeholder="e.g. Monthly Internet" />
+        </div>
+
+        <div class="grid grid-cols-2">
+          <div class="form-group">
+            <label>Amount</label>
+            <input type="number" formControlName="totalAmount" placeholder="0.00" step="0.01" />
+          </div>
+          <div class="form-group">
+            <label>Frequency</label>
+            <select formControlName="frequency">
+              <option [value]="Frequency.Weekly">Weekly</option>
+              <option [value]="Frequency.Monthly">Monthly</option>
+              <option [value]="Frequency.Yearly">Yearly</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2">
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" formControlName="startDate" />
+          </div>
+          <div class="form-group">
+            <label>Who Pays?</label>
+            <select formControlName="payerId">
+              @for (m of members; track m.userId) {
+                <option [value]="m.userId">{{ m.userName }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="padding-top: 1rem; border-top: 1px solid var(--border);">
+          <label>How to Split?</label>
+          <select formControlName="splitTypeId">
+            <option [value]="SplitType.Equal">Equal</option>
+            <option [value]="SplitType.Template">Use Template</option>
+          </select>
+        </div>
+
+        @if (form.get('splitTypeId')?.value == SplitType.Template) {
+          <div class="form-group">
+            <label>Select Template</label>
+            <select formControlName="splitTemplateId">
+              <option value="">-- Choose Template --</option>
+              @for (t of templates; track t.id) {
+                <option [value]="t.id">{{ t.name }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" [disabled]="form.invalid">
+          Activate Recurring Bill
+        </button>
+      </form>
+    </div>
+
+    <!-- Preview Panel -->
+    <div>
+      <div class="card" style="height: 100%;">
+        <h2 style="font-size: 1.25rem;">Next Cycle Preview</h2>
+        
+        @if (!previewExpense) {
+          <div style="height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; padding: 2rem;">
+            Setup and activate a recurring bill to see exactly how it will be split next cycle.
+          </div>
+        } @else {
+          <div>
+            <p style="color: var(--success); font-weight: 500;">Preview loaded for: {{ previewExpense.date | date:'mediumDate' }}</p>
+            <h3 style="margin: 1rem 0 0.5rem 0; font-size: 1.125rem;">{{ previewExpense.description }}</h3>
+            <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin: 0 0 1.5rem 0;">
+              ${{ previewExpense.totalAmount }}
+            </p>
+
+            <h4 style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Projected Splits</h4>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              @for (p of previewExpense.participants; track p.userId) {
+                <div class="flex justify-between items-center" style="padding: 0.75rem; background: var(--bg-dark); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                  <span style="font-size: 0.875rem;">Member ID: {{ p.userId | slice:0:8 }}</span>
+                  <span style="font-weight: 600;">${{ p.owedAmount }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>

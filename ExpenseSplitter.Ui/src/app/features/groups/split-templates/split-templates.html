@@ -1,0 +1,70 @@
+<div class="container" style="max-width: 800px; margin-top: 3rem;">
+  <a [routerLink]="['/groups', groupId]" style="color: var(--text-muted); text-decoration: none; font-size: 0.875rem;">← Back to Group</a>
+  
+  <div class="flex justify-between items-center mb-4 mt-4">
+    <h1 style="margin: 0; color: var(--primary);">Split Templates</h1>
+    <button class="btn btn-primary" (click)="toggleCreateForm()">
+      {{ showCreateForm ? 'Cancel' : '+ New Template' }}
+    </button>
+  </div>
+
+  @if (showCreateForm) {
+    <div class="card mb-4" style="border-color: var(--primary);">
+      <h3 style="margin-top: 0;">Create Reusable Template</h3>
+      <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        Provide relative share weights for members (e.g. 12, 15, 18 for room sizes). The backend will automatically calculate their proportions.
+      </p>
+
+      <form [formGroup]="templateForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label>Template Name</label>
+          <input type="text" formControlName="name" placeholder="e.g. Rent by Room Size" />
+        </div>
+
+        <div class="form-group">
+          <label>Member Weights</label>
+          <div formArrayName="items" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            @for (p of itemsArray.controls; track $index) {
+              <div [formGroupName]="$index" class="flex items-center justify-between" style="padding: 0.75rem; background: var(--bg-dark); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                
+                <div class="checkbox-wrapper">
+                  <input type="checkbox" formControlName="included" [id]="'chk-' + $index" />
+                  <label [for]="'chk-' + $index" style="margin: 0; cursor: pointer;">{{ p.get('userName')?.value }}</label>
+                </div>
+
+                @if (p.get('included')?.value) {
+                  <div style="width: 150px;">
+                    <input type="number" formControlName="shareValue" placeholder="Weight (e.g. 15)" style="padding: 0.5rem;" />
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 1rem;" [disabled]="templateForm.invalid">
+          Save Template
+        </button>
+      </form>
+    </div>
+  }
+
+  <div class="grid grid-cols-2">
+    @for (t of templates; track t.id) {
+      <div class="card">
+        <h2 class="card-title">{{ t.name }}</h2>
+        <div style="margin-top: 1rem;">
+          @for (item of t.items; track item.userId) {
+            <div class="flex justify-between" style="font-size: 0.875rem; padding: 0.25rem 0; border-bottom: 1px solid var(--border);">
+              <span style="color: var(--text-muted);">Member ID: {{ item.userId | slice:0:8 }}</span>
+              <span style="font-weight: 500;">Weight: {{ item.shareValue }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+    @if (templates.length === 0 && !showCreateForm) {
+      <p style="grid-column: span 2; text-align: center; color: var(--text-muted); padding: 2rem;">No templates yet.</p>
+    }
+  </div>
+</div>

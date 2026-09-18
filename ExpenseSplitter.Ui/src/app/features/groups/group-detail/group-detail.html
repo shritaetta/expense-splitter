@@ -6,9 +6,12 @@
         <h1 style="margin: 0.5rem 0 0 0; color: var(--primary);">{{ group.name }}</h1>
         <p style="margin: 0; font-size: 0.875rem;">Currency: {{ group.currency }}</p>
       </div>
-      <button class="btn btn-primary" [routerLink]="['/groups', group.id, 'add-expense']">
-        + Add Expense
-      </button>
+      <div class="flex" style="gap: 0.5rem;">
+        <button class="btn btn-primary" [routerLink]="['/groups', group.id, 'add-expense']">+ Add Expense</button>
+        <button class="btn btn-secondary" [routerLink]="['/groups', group.id, 'templates']">Templates</button>
+        <button class="btn btn-secondary" [routerLink]="['/groups', group.id, 'recurring']">Recurring Bills</button>
+        <button class="btn btn-secondary" [routerLink]="['/groups', group.id, 'settlements']">Settle Up</button>
+      </div>
     </div>
 
     <div class="grid grid-cols-2" style="grid-template-columns: 2fr 1fr;">
