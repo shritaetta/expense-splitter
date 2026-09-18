@@ -1,0 +1,48 @@
+<div class="container" style="max-width: 800px; margin-top: 3rem;">
+  <div class="flex justify-between items-center mb-4">
+    <h1 style="margin: 0; color: var(--primary);">My Groups</h1>
+    <button class="btn btn-primary" (click)="toggleCreateForm()">
+      {{ showCreateForm ? 'Cancel' : '+ New Group' }}
+    </button>
+  </div>
+
+  @if (showCreateForm) {
+    <div class="card mb-4" style="background-color: var(--bg-dark); border-color: var(--primary);">
+      <h3 style="margin-top: 0;">Create a New Group</h3>
+      <form [formGroup]="createGroupForm" (ngSubmit)="onCreateGroup()">
+        <div class="grid grid-cols-2">
+          <div class="form-group">
+            <label>Group Name</label>
+            <input type="text" formControlName="name" placeholder="e.g. Ski Trip 2026" />
+          </div>
+          <div class="form-group">
+            <label>Currency</label>
+            <select formControlName="currency">
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="createGroupForm.invalid">Create Group</button>
+      </form>
+    </div>
+  }
+
+  @if (groups.length === 0 && !showCreateForm) {
+    <div class="card text-center" style="padding: 4rem 2rem;">
+      <h2 style="color: var(--text-muted);">You aren't part of any groups yet.</h2>
+      <p>Create a group to start splitting expenses with your friends!</p>
+      <button class="btn btn-primary mt-4" (click)="toggleCreateForm()">Create your first group</button>
+    </div>
+  }
+
+  <div class="grid grid-cols-2">
+    @for (group of groups; track group.id) {
+      <div class="card" style="cursor: pointer;" [routerLink]="['/groups', group.id]">
+        <h2 class="card-title">{{ group.name }}</h2>
+        <p style="margin: 0; font-size: 0.875rem;">Currency: {{ group.currency }}</p>
+      </div>
+    }
+  </div>
+</div>

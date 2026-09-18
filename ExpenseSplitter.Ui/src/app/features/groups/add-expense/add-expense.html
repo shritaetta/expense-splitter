@@ -1,0 +1,77 @@
+<div class="container" style="max-width: 600px; margin-top: 3rem;">
+  <a [routerLink]="['/groups', groupId]" style="color: var(--text-muted); text-decoration: none; font-size: 0.875rem;">← Back to Group</a>
+  <h1 style="color: var(--primary); margin-top: 0.5rem;">Add an Expense</h1>
+
+  <div class="card">
+    <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()">
+      
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" formControlName="description" placeholder="e.g. Dinner at Mario's" />
+      </div>
+
+      <div class="grid grid-cols-2">
+        <div class="form-group">
+          <label>Total Amount</label>
+          <input type="number" formControlName="totalAmount" placeholder="0.00" step="0.01" />
+        </div>
+        
+        <div class="form-group">
+          <label>Who Paid?</label>
+          <select formControlName="payerId">
+            @for (member of members; track member.userId) {
+              <option [value]="member.userId">{{ member.userName }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
+        <label>How to Split?</label>
+        <select formControlName="splitType">
+          @for (type of splitTypes; track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-top: 1rem;">
+        <label>Participants</label>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+          Uncheck anyone who wasn't involved in this expense.
+        </p>
+
+        <div formArrayName="participants" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          @for (p of participantsArray.controls; track $index) {
+            <div [formGroupName]="$index" class="flex items-center justify-between" style="padding: 0.75rem; background: var(--bg-dark); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+              
+              <div class="checkbox-wrapper">
+                <input type="checkbox" formControlName="included" [id]="'chk-' + $index" />
+                <label [for]="'chk-' + $index" style="margin: 0; cursor: pointer; color: var(--text-main);">{{ p.get('userName')?.value }}</label>
+              </div>
+
+              @if (p.get('included')?.value) {
+                <div style="width: 150px;">
+                  @if (selectedSplitType === SplitType.Exact) {
+                    <input type="number" formControlName="shareAmount" placeholder="Amount" step="0.01" style="padding: 0.5rem;" />
+                  }
+                  @if (selectedSplitType === SplitType.Percentage) {
+                    <input type="number" formControlName="percentage" placeholder="Percentage %" step="0.1" style="padding: 0.5rem;" />
+                  }
+                  @if (selectedSplitType === SplitType.Equal) {
+                    <span style="font-size: 0.875rem; color: var(--text-muted);">Included (Equal)</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 2rem;" [disabled]="expenseForm.invalid">
+        Save Expense
+      </button>
+
+    </form>
+  </div>
+</div>
