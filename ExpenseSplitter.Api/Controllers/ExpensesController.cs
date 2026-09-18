@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ExpenseSplitter.Api.Data;
 using ExpenseSplitter.Api.DTOs;
 using ExpenseSplitter.Api.Models;
@@ -21,12 +22,14 @@ namespace ExpenseSplitter.Api.Controllers
         private readonly AppDbContext _context;
         private readonly ExpenseSplitter.Api.Services.ISplitCalculator _calculator;
         private readonly ExpenseSplitter.Api.Services.IBalanceCalculator _balanceCalculator;
+        private readonly ILogger<ExpensesController> _logger;
 
-        public ExpensesController(AppDbContext context, ExpenseSplitter.Api.Services.ISplitCalculator calculator, ExpenseSplitter.Api.Services.IBalanceCalculator balanceCalculator)
+        public ExpensesController(AppDbContext context, ExpenseSplitter.Api.Services.ISplitCalculator calculator, ExpenseSplitter.Api.Services.IBalanceCalculator balanceCalculator, ILogger<ExpensesController> logger)
         {
             _context = context;
             _calculator = calculator;
             _balanceCalculator = balanceCalculator;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -93,6 +96,8 @@ namespace ExpenseSplitter.Api.Controllers
 
             _context.Expenses.Add(expense);
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Successfully created expense {ExpenseId} in group {GroupId} for amount {TotalAmount}", expense.Id, groupId, expense.TotalAmount);
 
             var result = new ExpenseDto
             {

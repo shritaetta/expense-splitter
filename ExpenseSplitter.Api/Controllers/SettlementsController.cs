@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ExpenseSplitter.Api.Data;
 using ExpenseSplitter.Api.DTOs;
 using ExpenseSplitter.Api.Models;
@@ -22,12 +23,14 @@ namespace ExpenseSplitter.Api.Controllers
         private readonly AppDbContext _context;
         private readonly IBalanceCalculator _balanceCalculator;
         private readonly ISettlementCalculator _settlementCalculator;
+        private readonly ILogger<SettlementsController> _logger;
 
-        public SettlementsController(AppDbContext context, IBalanceCalculator balanceCalculator, ISettlementCalculator settlementCalculator)
+        public SettlementsController(AppDbContext context, IBalanceCalculator balanceCalculator, ISettlementCalculator settlementCalculator, ILogger<SettlementsController> logger)
         {
             _context = context;
             _balanceCalculator = balanceCalculator;
             _settlementCalculator = settlementCalculator;
+            _logger = logger;
         }
 
         [HttpGet("suggested")]
@@ -82,6 +85,8 @@ namespace ExpenseSplitter.Api.Controllers
 
             _context.Settlements.Add(settlement);
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Settlement of {Amount} marked as paid from {PayerId} to {PayeeId} in group {GroupId}", settlement.Amount, settlement.PayerId, settlement.PayeeId, groupId);
 
             return Ok(new SettlementDto
             {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 using ExpenseSplitter.Api.Controllers;
 using ExpenseSplitter.Api.Data;
@@ -39,7 +40,7 @@ namespace ExpenseSplitter.Api.Tests
             context.GroupMembers.Add(new GroupMember { GroupId = group.Id, UserId = debtor.Id, JoinedAt = DateTimeOffset.UtcNow });
             await context.SaveChangesAsync();
 
-            var controller = new ExpensesController(context, new ExpenseSplitter.Api.Services.SplitCalculator(), new ExpenseSplitter.Api.Services.BalanceCalculator(context));
+            var controller = new ExpensesController(context, new ExpenseSplitter.Api.Services.SplitCalculator(), new ExpenseSplitter.Api.Services.BalanceCalculator(context), NullLogger<ExpensesController>.Instance);
             var dto = new CreateExpenseDto
             {
                 PayerId = payer.Id,
@@ -93,7 +94,7 @@ namespace ExpenseSplitter.Api.Tests
             context.GroupMembers.Add(new GroupMember { GroupId = group.Id, UserId = debtor2.Id, JoinedAt = DateTimeOffset.UtcNow });
             await context.SaveChangesAsync();
 
-            var controller = new ExpensesController(context, new ExpenseSplitter.Api.Services.SplitCalculator(), new ExpenseSplitter.Api.Services.BalanceCalculator(context));
+            var controller = new ExpensesController(context, new ExpenseSplitter.Api.Services.SplitCalculator(), new ExpenseSplitter.Api.Services.BalanceCalculator(context), NullLogger<ExpensesController>.Instance);
             var dto = new CreateExpenseDto
             {
                 PayerId = payer.Id,
@@ -147,7 +148,7 @@ namespace ExpenseSplitter.Api.Tests
             context.GroupMembers.Add(new GroupMember { GroupId = group.Id, UserId = debtor.Id, JoinedAt = DateTimeOffset.UtcNow });
             await context.SaveChangesAsync();
 
-            var controller = new ExpensesController(context, new ExpenseSplitter.Api.Services.SplitCalculator(), new ExpenseSplitter.Api.Services.BalanceCalculator(context));
+            var controller = new ExpensesController(context, new ExpenseSplitter.Api.Services.SplitCalculator(), new ExpenseSplitter.Api.Services.BalanceCalculator(context), NullLogger<ExpensesController>.Instance);
             var dto = new CreateExpenseDto
             {
                 PayerId = payer.Id,
@@ -193,7 +194,7 @@ namespace ExpenseSplitter.Api.Tests
             context.GroupMembers.Add(new GroupMember { GroupId = group.Id, UserId = debtor2.Id, JoinedAt = DateTimeOffset.UtcNow });
             await context.SaveChangesAsync();
 
-            var controller = new ExpensesController(context, new ExpenseSplitter.Api.Services.SplitCalculator(), new ExpenseSplitter.Api.Services.BalanceCalculator(context));
+            var controller = new ExpensesController(context, new ExpenseSplitter.Api.Services.SplitCalculator(), new ExpenseSplitter.Api.Services.BalanceCalculator(context), NullLogger<ExpensesController>.Instance);
             
             // Create the $200 expense (20% payer, 30% d1, 50% d2)
             var dto = new CreateExpenseDto

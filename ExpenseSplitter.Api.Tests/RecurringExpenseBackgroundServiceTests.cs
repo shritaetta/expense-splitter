@@ -16,6 +16,7 @@ namespace ExpenseSplitter.Api.Tests
         private ServiceProvider GetServiceProvider(AppDbContext context)
         {
             var services = new ServiceCollection();
+            services.AddLogging();
             services.AddSingleton(context);
             services.AddSingleton<IProrationCalculator, ProrationCalculator>();
             services.AddScoped<IRecurringExpenseGenerator, RecurringExpenseGenerator>();

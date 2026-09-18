@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ExpenseSplitter.Api.Data;
 using ExpenseSplitter.Api.Models;
 
@@ -17,11 +18,13 @@ namespace ExpenseSplitter.Api.Services
     {
         private readonly AppDbContext _context;
         private readonly IProrationCalculator _prorationCalculator;
+        private readonly ILogger<RecurringExpenseGenerator> _logger;
 
-        public RecurringExpenseGenerator(AppDbContext context, IProrationCalculator prorationCalculator)
+        public RecurringExpenseGenerator(AppDbContext context, IProrationCalculator prorationCalculator, ILogger<RecurringExpenseGenerator> logger)
         {
             _context = context;
             _prorationCalculator = prorationCalculator;
+            _logger = logger;
         }
 
         public async Task<Expense> GenerateExpenseAsync(RecurringExpense re, CancellationToken cancellationToken = default)
@@ -81,6 +84,8 @@ namespace ExpenseSplitter.Api.Services
                     ShareValue = inputs.First(i => i.UserId == share.UserId).ShareValue
                 });
             }
+
+            _logger.LogInformation("Generated expense {ExpenseId} for recurring bill {RecurringExpenseId}", expense.Id, re.Id);
 
             return expense;
         }

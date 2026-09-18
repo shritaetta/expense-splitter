@@ -98,5 +98,78 @@ namespace ExpenseSplitter.Api.Tests
             
             Assert.Contains("Total percentage must equal 100", ex.Message);
         }
+
+        [Fact]
+        public void Calculate_ExactAmount_DistributesExactlyAsRequested()
+        {
+            // Arrange
+            decimal totalAmount = 150m;
+            var user1 = Guid.NewGuid();
+            var user2 = Guid.NewGuid();
+
+            var participants = new List<SplitParticipantInput>
+            {
+                new SplitParticipantInput { UserId = user1, ShareValue = 50m },
+                new SplitParticipantInput { UserId = user2, ShareValue = 100m }
+            };
+
+            // Act
+            var results = _calculator.Calculate(totalAmount, SplitType.ExactAmount, participants).ToList();
+
+            // Assert
+            Assert.Equal(50m, results.Single(r => r.UserId == user1).OwedAmount);
+            Assert.Equal(100m, results.Single(r => r.UserId == user2).OwedAmount);
+            Assert.Equal(150m, results.Sum(r => r.OwedAmount));
+        }
+
+        [Fact]
+        public void Calculate_ExactAmount_ThrowsIfSumDoesNotMatchTotal()
+        {
+            // Arrange
+            decimal totalAmount = 150m;
+            var participants = new List<SplitParticipantInput>
+            {
+                new SplitParticipantInput { UserId = Guid.NewGuid(), ShareValue = 50m },
+                new SplitParticipantInput { UserId = Guid.NewGuid(), ShareValue = 50m } // Sums to 100, not 150
+            };
+
+            // Act & Assert
+            var ex = Assert.Throws<ValidationException>(() =>
+                _calculator.Calculate(totalAmount, SplitType.ExactAmount, participants));
+            
+            Assert.Contains("Sum of exact amounts", ex.Message);
+        }
+
+        [Fact]
+        public void Calculate_Template_DistributesByArbitraryWeights()
+        {
+            // Arrange
+            decimal totalAmount = 300m;
+            var user1 = Guid.NewGuid();
+            var user2 = Guid.NewGuid();
+            var user3 = Guid.NewGuid();
+
+            var participants = new List<SplitParticipantInput>
+            {
+                new SplitParticipantInput { UserId = user1, ShareValue = 1m }, // 1 part
+                new SplitParticipantInput { UserId = user2, ShareValue = 2m }, // 2 parts
+                new SplitParticipantInput { UserId = user3, ShareValue = 3m }  // 3 parts
+                // Total = 6 parts. 300 / 6 = 50 per part
+            };
+
+            // Act
+            var results = _calculator.Calculate(totalAmount, SplitType.Template, participants).ToList();
+
+            // Assert
+            // Since rounding could give a penny to the first user by Guid, we just verify the sum and roughly the amounts
+            var r1 = results.Single(r => r.UserId == user1).OwedAmount;
+            var r2 = results.Single(r => r.UserId == user2).OwedAmount;
+            var r3 = results.Single(r => r.UserId == user3).OwedAmount;
+            
+            Assert.True(Math.Abs(50m - r1) <= 0.01m);
+            Assert.True(Math.Abs(100m - r2) <= 0.01m);
+            Assert.True(Math.Abs(150m - r3) <= 0.01m);
+            Assert.Equal(300m, results.Sum(r => r.OwedAmount));
+        }
     }
 }

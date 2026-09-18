@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 using ExpenseSplitter.Api.Controllers;
 using ExpenseSplitter.Api.Data;
@@ -58,7 +59,7 @@ namespace ExpenseSplitter.Api.Tests
 
             var balanceCalculator = new BalanceCalculator(context);
             var settlementCalculator = new SettlementCalculator();
-            var controller = new SettlementsController(context, balanceCalculator, settlementCalculator);
+            var controller = new SettlementsController(context, balanceCalculator, settlementCalculator, NullLogger<SettlementsController>.Instance);
 
             // Verify initial suggestion: Bob pays Alice $100
             var initialResult = await controller.GetSuggestedSettlements(group.Id) as OkObjectResult;
