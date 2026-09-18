@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\ExpenseSplitter.Api.props" />
-</Project>
