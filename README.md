@@ -3,14 +3,12 @@
 ![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=flat-square&logo=dotnet&logoColor=white)
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-Web_API-512BD4?style=flat-square&logo=dotnet&logoColor=white)
 ![C#](https://img.shields.io/badge/C%23-239120?style=flat-square&logo=csharp&logoColor=white)
-![EF Core](https://img.shields.io/badge/Entity_Framework_Core-8.0-512BD4?style=flat-square&logo=dotnet&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-dev_db-003B57?style=flat-square&logo=sqlite&logoColor=white)
 ![JWT](https://img.shields.io/badge/Auth-JWT-black?style=flat-square&logo=jsonwebtokens&logoColor=white)
 ![Angular](https://img.shields.io/badge/Angular-standalone-DD0031?style=flat-square&logo=angular&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![RxJS](https://img.shields.io/badge/RxJS-B7178C?style=flat-square&logo=reactivex&logoColor=white)
 ![xUnit](https://img.shields.io/badge/Testing-xUnit-25A162?style=flat-square&logo=xunit&logoColor=white)
-![Moq](https://img.shields.io/badge/Mocking-Moq-25A162?style=flat-square)
 ![Swagger](https://img.shields.io/badge/API_Docs-Swagger-85EA2D?style=flat-square&logo=swagger&logoColor=black)
 
 A full-stack expense-splitting application (Splitwise-style) built with **ASP.NET Core 8 + EF Core** on the backend and **Angular** on the frontend. Built as a capstone/portfolio project for a .NET Full Stack trainee program.
